@@ -2,89 +2,20 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ThriftCollector Pro</title>
-<style>
-:root { --green: #00C853; --blue: #0A2540; --bg: #F5F7FA; }
-* { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-body { margin:0; background: var(--bg); }
-.app { max-width: 480px; margin: 0 auto; min-height: 100vh; background: white; }
-header { background: var(--blue); color: white; padding: 16px; display: flex; justify-content: space-between; }
-.auth-screen { padding: 40px 24px; text-align: center; }
-.input { width: 100%; padding: 14px; border: 1px solid #E2E8F0; border-radius: 10px; margin: 8px 0; font-size: 16px; }
-.btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 600; font-size: 16px; cursor: pointer; }
-.btn-green { background: var(--green); color: white; }
-.btn-outline { background: transparent; border: 1px solid var(--blue); color: var(--blue); margin-top:10px }
-.card { background: white; margin: 12px 16px; padding: 16px; border-radius: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-.banner { background: #FFF8E1; padding: 12px 16px; font-size: 13px; }
-.fab { position: fixed; bottom: 24px; right: 24px; background: var(--green); color: white; border: none; width: 56px; height: 56px; border-radius: 50%; font-size: 28px; }
-.modal { position: fixed; inset: 0; background: rgba(10,37,64,0.6); display: flex; align-items: center; justify-content: center; padding: 16px; }
-.modal-content { background: white; padding: 24px; border-radius: 18px; width: 100%; max-width: 420px; }
-.hidden { display: none; }
-.pro-tag { background: var(--green); color: white; font-size: 10px; padding: 3px 8px; border-radius: 20px; }
-.disclaimer { font-size: 11px; color: #718096; margin-top: 12px; text-align: center; }
-</style>
-<script src="https://js.paystack.co/v1/inline.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ThriftTrack Pro - Group Contribution Tracker</title>
+<meta name="description" content="Track group contributions, attendance, and send WhatsApp reminders for Ajo, Esusu, Clubs. Multi-currency. 100% local.">
+<meta name="theme-color" content="#0A2540">
+<link rel="stylesheet" href="style.css">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
   <div class="app" id="app">Loading...</div>
-
-<script>
-// ===== DATABASE IN 1 FILE =====
-const STORAGE_KEY = "tcp_v3";
-const DB = {
-  get() { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {users:[],currentUser:null,subscription:"free",groups:[]}; },
-  save(d) { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); },
-  signup(n,e,p){ let d=this.get(); if(d.users.find(u=>u.email===e)) return {error:"Email exists"}; d.users.push({n,e,p}); d.currentUser=e; this.save(d); return {ok:1}; },
-  login(e,p){ let d=this.get(); if(!d.users.find(u=>u.e===e&&u.p===p)) return {error:"Invalid"}; d.currentUser=e; this.save(d); return {ok:1}; },
-  logout(){ let d=this.get(); d.currentUser=null; this.save(d); },
-  getPlan(){ return this.get().subscription; },
-  setPlan(pl){ let d=this.get(); d.subscription=pl; this.save(d); }
-};
-const PLANS = { free:{price:0}, pro:{price:350000,display:"₦3,500/mo"} };
-const genId = () => `TCP-${Date.now()}`;
-const now = () => new Date().toLocaleString("en-NG");
-
-function pay(email){
-  PaystackPop.setup({
-    key:"pk_test_your_key_here", email, amount:PLANS.pro.price, currency:"NGN", ref:genId(),
-    callback:function(){ DB.setPlan("pro"); alert("Upgraded!"); location.reload(); },
-    onClose:function(){ alert("Cancelled") }
-  }).openIframe();
-}
-
-// ===== APP RENDER =====
-let currentGroup=null, currentMember=null;
-function render(){
-  const d=DB.get(); const app=document.getElementById("app");
-  if(!d.currentUser){ app.innerHTML=authHTML(); return; }
-  app.innerHTML=`
-  <header><h3>ThriftCollector Pro</h3><div>${d.subscription==='pro'?'<span class=pro-tag>PRO</span>':''}<button onclick="DB.logout();render()" style="background:none;border:none;color:white;margin-left:10px">Logout</button></div></header>
-  ${d.subscription==='free'?`<div class=banner>Free Plan <button onclick="show('paywall')" style="float:right;background:var(--green);color:white;border:none;padding:6px 10px;border-radius:6px">Upgrade ₦3,500</button></div>`:''}
-  <main id=main></main>
-  <button class=fab onclick="addGroupPrompt()">+</button>
-  ${allModals()}`;
-  renderGroups();
-}
-function authHTML(){ return `<div class=auth-screen><h2>Welcome</h2><input id=n class=input placeholder=Full Name><input id=e class=input placeholder=Email><input id=p type=password class=input placeholder=Password><button class="btn btn-green" onclick="doSignup()">Create Account</button><button class="btn btn-outline" onclick="doLogin()">Login</button><p class=disclaimer>Data is stored on your device only</p></div>`; }
-function doSignup(){ const r=DB.signup(n.value,e.value,p.value); if(r.error)alert(r.error); else render(); }
-function doLogin(){ const r=DB.login(e.value,p.value); if(r.error)alert(r.error); else render(); }
-function renderGroups(){ const d=DB.get(); main.innerHTML=d.groups.map(g=>`<div class=card onclick="openGroup(${g.id})"><b>${g.name}</b><br>₦${g.amount} ${g.freq} • ${g.members.length} members</div>`).join("")||`<div class=card>No groups yet</div>`; }
-function addGroupPrompt(){ const name=prompt("Group Name"); const amount=prompt("Amount"); if(name&&amount){ let d=DB.get(); if(d.subscription==='free'&&d.groups.length>=2){alert("Free limit reached");show('paywall');return;} d.groups.push({id:Date.now(),name,amount:Number(amount),freq:"Weekly",members:[]}); DB.save(d); renderGroups(); }}
-function openGroup(id){ currentGroup=DB.get().groups.find(g=>g.id===id); groupName.innerText=currentGroup.name; groupStats.innerText=`₦${currentGroup.amount} • ${currentGroup.members.length} Members`; membersList.innerHTML=currentGroup.members.map(m=>`<div onclick="payMember(${m.id})">${m.name} - ${m.payments.length?'Paid':'Unpaid'}</div>`).join(""); show('groupDetail'); }
-function payMember(id){ currentMember=currentGroup.members.find(m=>m.id===id); memberName.innerText=currentMember.name; paymentInfo.innerText=`Date: ${now()} | ID: ${genId()}`; show('paymentModal'); }
-function markPaid(){ let d=DB.get(); let g=d.groups.find(g=>g.id===currentGroup.id); let m=g.members.find(m=>m.id===currentMember.id); m.payments.push({id:genId(),date:now()}); DB.save(d); close('paymentModal'); openGroup(currentGroup.id); }
-function showMessage(){ if(DB.getPlan()!=='pro'){show('paywall');return;} memberCount.innerText=currentGroup.members.length; msgText.value=`Hello ${currentGroup.name} members,\n\nReminder: ₦${currentGroup.amount} is due.\n\n- ThriftCollector Pro`; show('messagePortal'); }
-function sendWA(){ window.open(`https://wa.me/?text=${encodeURIComponent(msgText.value)}`); close('messagePortal'); }
-function upgrade(){ pay(DB.get().currentUser); }
-function show(id){document.getElementById(id).classList.remove('hidden')}
-function close(id){document.getElementById(id).classList.add('hidden')}
-function allModals(){ return `
-<div id=groupDetail class="modal hidden"><div class=modal-content><button onclick="close('groupDetail')">X</button><h2 id=groupName></h2><p id=groupStats></p><button class="btn btn-green" onclick="showMessage()">📢 Message All on WhatsApp</button><div id=membersList></div><button class="btn btn-green" onclick="let n=prompt('Name');let ph=prompt('Phone');if(n){let d=DB.get();d.groups.find(g=>g.id===currentGroup.id).members.push({id:Date.now(),name:n,phone:ph,bank:'',payments:[]});DB.save(d);openGroup(currentGroup.id)}">+ Add Member</button></div></div>
-<div id=paymentModal class="modal hidden"><div class=modal-content><button onclick="close('paymentModal')">X</button><h3 id=memberName></h3><p id=paymentInfo></p><button class="btn btn-green" onclick="markPaid()">Mark as Paid</button></div></div>
-<div id=messagePortal class="modal hidden"><div class=modal-content><button onclick="close('messagePortal')">X</button><h3>WhatsApp Broadcast <span class=pro-tag>PRO</span></h3><p>To: <span id=memberCount></span> members</p><textarea id=msgText class=input rows=4></textarea><button class="btn btn-green" onclick="sendWA()">Open WhatsApp</button><p class=disclaimer>Get consent before messaging</p></div></div>
-<div id=paywall class="modal hidden"><div class=modal-content style=text-align:center><h2>Upgrade to Pro</h2><h1 style=color:var(--green)>₦3,500<span style=font-size:16px>/month</span></h1><p>✓ Unlimited<br>✓ No Ads<br>✓ WhatsApp Broadcast</p><button class="btn btn-green" onclick="upgrade()">Pay with Paystack</button><button class="btn btn-outline" onclick="close('paywall')">Later</button></div></div>`;}
-render();
-</script>
+  <div id="pages" style="display:none"></div>
+  <script>
+    fetch('assets/pages.html').then(res=>res.text()).then(html=>{ document.getElementById('pages').innerHTML = html; })
+  </script>
+  <script type="module" src="app.js"></script>
 </body>
-</html>
+    </html>
