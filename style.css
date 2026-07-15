@@ -1,0 +1,31 @@
+:root { 
+  --green: #00C853; 
+  --blue: #0A2540; 
+  --bg: #F5F7FA; 
+  --card: #FFFFFF;
+  --text: #1A202C;
+}
+* { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+body { margin:0; background: var(--bg); color: var(--text); }
+.app { max-width: 480px; margin: 0 auto; min-height: 100vh; background: var(--card); }
+header { background: var(--blue); color: white; padding: 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
+h1 { font-size: 18px; margin: 0; }
+.auth-screen { padding: 40px 24px; text-align: center; }
+.auth-screen h2 { color: var(--blue); }
+.input { width: 100%; padding: 14px; border: 1px solid #E2E8F0; border-radius: 10px; margin: 8px 0; font-size: 16px; }
+.btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 600; font-size: 16px; cursor: pointer; }
+.btn-green { background: var(--green); color: white; }
+.btn-blue { background: var(--blue); color: white; }
+.btn-outline { background: transparent; border: 1px solid var(--blue); color: var(--blue); }
+.card { background: var(--card); margin: 12px 16px; padding: 16px; border-radius: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.banner { background: #FFF8E1; padding: 12px 16px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
+.fab { position: fixed; bottom: 24px; right: 24px; background: var(--green); color: white; border: none; width: 56px; height: 56px; border-radius: 50%; font-size: 28px; box-shadow: 0 4px 12px rgba(0,200,83,0.3); }
+.modal { position: fixed; inset: 0; background: rgba(10,37,64,0.6); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.modal-content { background: white; padding: 24px; border-radius: 18px; width: 100%; max-width: 420px; }
+.hidden { display: none; }
+.pro-tag { background: var(--green); color: white; font-size: 10px; padding: 3px 8px; border-radius: 20px; font-weight: 700; }
+.disclaimer { font-size: 11px; color: #718096; margin-top: 12px; text-align: center; }
+footer { text-align: center; padding: 24px 16px; font-size: 12px; color: #A0AEC0; }
+.member { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #EDF2F7; }
+.status-paid { color: var(--green); font-weight: 600; }
+.status-unpaid { color: #E53E3E; font-weight: 600; }
